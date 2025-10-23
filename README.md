@@ -44,3 +44,8 @@ Utilitários:
 1. Instale dependências:
    ```sh
    flutter pub get
+   ```
+2. Execute o aplicativo:
+   ```sh
+   flutter run
+   ```
