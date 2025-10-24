@@ -12,7 +12,7 @@ class CharacterCardWidget extends StatelessWidget {
       child: Column(
         children: [
           Image.network(character.image),
-          SizedBox(height: 8),
+          SizedBox(height: 16),
           Text(character.name, style: TextStyle(fontWeight: FontWeight.bold)),
         ],
       ),

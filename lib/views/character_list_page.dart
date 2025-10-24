@@ -62,36 +62,52 @@ class _CharacterListPageState extends State<CharacterListPage> {
             builder: (context, child) {
               return Padding(
                 padding: const EdgeInsets.all(16.0),
-                child: CustomScrollView(
-                  controller: _scrollController,
-                  slivers: [
-                    SliverGrid.builder(
-                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2,
-                        childAspectRatio: 0.8,
-                      ),
-                      itemCount: widget.viewModel.characters.length,
-                      itemBuilder: (context, index) {
-                        final character = widget.viewModel.characters[index];
-                        return InkWell(
-                          onTap: () {
-                            context.push(
-                              '/character/${character.id}',
-                              extra: character,
+                child: LayoutBuilder(
+                  builder: (context, constrains) {
+                    final crossAxisCount = constrains.maxWidth < 600
+                        ? 2
+                        : constrains.maxWidth < 900
+                        ? 3
+                        : 4;
+
+                    final childAspectRatio = constrains.maxWidth < 600
+                        ? 0.8
+                        : 0.9;
+
+                    return CustomScrollView(
+                      controller: _scrollController,
+                      slivers: [
+                        SliverGrid.builder(
+                          gridDelegate:
+                              SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: crossAxisCount,
+                                childAspectRatio: childAspectRatio,
+                              ),
+                          itemCount: widget.viewModel.characters.length,
+                          itemBuilder: (context, index) {
+                            final character =
+                                widget.viewModel.characters[index];
+                            return InkWell(
+                              onTap: () {
+                                context.push(
+                                  '/character/${character.id}',
+                                  extra: character,
+                                );
+                              },
+                              child: CharacterCardWidget(character: character),
                             );
                           },
-                          child: CharacterCardWidget(character: character),
-                        );
-                      },
-                    ),
-                    if (widget.viewModel.isPaginating)
-                      SliverToBoxAdapter(
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Center(child: CircularProgressIndicator()),
                         ),
-                      ),
-                  ],
+                        if (widget.viewModel.isPaginating)
+                          SliverToBoxAdapter(
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Center(child: CircularProgressIndicator()),
+                            ),
+                          ),
+                      ],
+                    );
+                  },
                 ),
               );
             },
