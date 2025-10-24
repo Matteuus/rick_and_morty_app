@@ -9,6 +9,9 @@ class CharacterListViewmodel extends ChangeNotifier {
     : _characterRepository = characterRepository {
     loadCharacters = Command0(_loadCharacters)..execute();
     loadNextPageCharacters = Command0(_loadNextPageCharacters);
+    searchCharacters = Command1<List<CharacterModel>, String>(
+      _searchCharacters,
+    );
   }
 
   final ICharacterRepository _characterRepository;
@@ -27,6 +30,7 @@ class CharacterListViewmodel extends ChangeNotifier {
 
   late Command0 loadCharacters;
   late Command0 loadNextPageCharacters;
+  late Command1<List<CharacterModel>, String> searchCharacters;
 
   Future<Result> _loadCharacters() async {
     try {
@@ -67,6 +71,30 @@ class CharacterListViewmodel extends ChangeNotifier {
       }
     } finally {
       _isPaginating = false;
+      notifyListeners();
+    }
+  }
+
+  Future<Result<List<CharacterModel>>> _searchCharacters(String name) async {
+    try {
+      _nextPageUrl = null;
+      _totalPages = 1;
+      await Future.delayed(Duration(milliseconds: 1000));
+      final result = await _characterRepository.fetchAllCharacters(name: name);
+
+      switch (result) {
+        case Success(:final data):
+          _characters = data.results;
+          _nextPageUrl = data.next;
+          _totalPages = data.pages;
+          notifyListeners();
+          return Success(_characters);
+        case Failure(:final error):
+          _characters = [];
+          notifyListeners();
+          return Failure(error);
+      }
+    } finally {
       notifyListeners();
     }
   }

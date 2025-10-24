@@ -4,7 +4,10 @@ import 'package:rick_and_morty_app/model/character_model.dart';
 import 'package:rick_and_morty_app/model/character_response.dart';
 
 abstract class ICharacterRepository {
-  Future<Result<CharacterResponse>> fetchAllCharacters({String? url});
+  Future<Result<CharacterResponse>> fetchAllCharacters({
+    String? url,
+    String? name,
+  });
   Future<Result<CharacterModel>> fetchCharacterById(int id);
 }
 
@@ -14,9 +17,12 @@ class CharacterRepositoryImpl implements ICharacterRepository {
   CharacterRepositoryImpl(this._apiService);
 
   @override
-  Future<Result<CharacterResponse>> fetchAllCharacters({String? url}) async {
+  Future<Result<CharacterResponse>> fetchAllCharacters({
+    String? url,
+    String? name,
+  }) async {
     try {
-      final response = await _apiService.getAllCharacters(url: url);
+      final response = await _apiService.getAllCharacters(url: url, name: name);
       final charactersResponse = CharacterResponse.fromJson(response);
       return Success(charactersResponse);
     } catch (e) {

@@ -14,14 +14,18 @@ class CharacterListPage extends StatefulWidget {
 
 class _CharacterListPageState extends State<CharacterListPage> {
   late ScrollController _scrollController;
+  late TextEditingController _searchController;
 
   @override
   void initState() {
     super.initState();
     widget.viewModel.loadCharacters.execute();
-    _scrollController = ScrollController();
 
+    _scrollController = ScrollController();
     _scrollController.addListener(_scrollListener);
+
+    _searchController = TextEditingController();
+    _searchController.addListener(_searchListener);
   }
 
   @override
@@ -29,6 +33,9 @@ class _CharacterListPageState extends State<CharacterListPage> {
     super.dispose();
     _scrollController.dispose();
     _scrollController.removeListener(_scrollListener);
+
+    _searchController.removeListener(_searchListener);
+    _searchController.dispose();
   }
 
   void _scrollListener() {
@@ -38,22 +45,65 @@ class _CharacterListPageState extends State<CharacterListPage> {
     }
   }
 
+  void _searchListener() {
+    final query = _searchController.text;
+    if (query.isEmpty &&
+        !widget.viewModel.loadCharacters.running &&
+        !widget.viewModel.searchCharacters.running) {
+      widget.viewModel.loadCharacters.execute();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Rick and Morty App')),
+      appBar: AppBar(
+        title: TextField(
+          controller: _searchController,
+          decoration: InputDecoration(
+            hintText: 'Buscar personagem...',
+            hintStyle: TextStyle(color: Colors.grey),
+            prefixIcon: Icon(Icons.search, color: Colors.grey),
+            filled: true,
+            fillColor: Colors.white,
+            contentPadding: const EdgeInsets.symmetric(
+              vertical: 8.0,
+              horizontal: 16.0,
+            ),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8.0),
+              borderSide: BorderSide.none,
+            ),
+          ),
+          style: TextStyle(fontSize: 18.0),
+          onSubmitted: (value) {
+            if (value.isNotEmpty &&
+                !widget.viewModel.searchCharacters.running) {
+              widget.viewModel.searchCharacters.execute(value);
+            }
+          },
+        ),
+      ),
       body: SafeArea(
         child: ListenableBuilder(
           listenable: widget.viewModel.loadCharacters,
           builder: (context, child) {
-            if (widget.viewModel.loadCharacters.running) {
+            final isRunnig =
+                widget.viewModel.loadCharacters.running ||
+                widget.viewModel.searchCharacters.running;
+
+            final hasFailure =
+                widget.viewModel.loadCharacters.failure ||
+                widget.viewModel.searchCharacters.failure;
+
+            final errorMessage =
+                widget.viewModel.loadCharacters.errorMessage ??
+                widget.viewModel.searchCharacters.errorMessage;
+
+            if (isRunnig) {
               return Center(child: CircularProgressIndicator());
-            } else if (widget.viewModel.loadCharacters.failure) {
-              return Center(
-                child: Text(
-                  widget.viewModel.loadCharacters.errorMessage ?? 'Error',
-                ),
-              );
+            } else if (hasFailure) {
+              return Center(child: Text(errorMessage ?? 'Error'));
             }
             return child!;
           },
