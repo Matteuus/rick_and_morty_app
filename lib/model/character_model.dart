@@ -48,4 +48,76 @@ class CharacterModel {
       image: json['image'],
     );
   }
+
+  String get translatedStatus {
+    switch (status.toLowerCase()) {
+      case 'alive':
+        return 'Vivo';
+      case 'dead':
+        return 'Morto';
+      case 'unknown':
+        return 'Desconhecido';
+      default:
+        return status;
+    }
+  }
+
+  String get translatedSpecies {
+    switch (species.toLowerCase()) {
+      case 'human':
+        return 'Humano';
+      case 'alien':
+        return 'Alienígena';
+      case 'mythological creature':
+        return 'Criatura Mitológica';
+      default:
+        return species;
+    }
+  }
+
+  String get translatedGender {
+    switch (gender.toLowerCase()) {
+      case 'male':
+        return 'Masculino';
+      case 'female':
+        return 'Feminino';
+      case 'genderless':
+        return 'Sem gênero';
+      case 'unknown':
+        return 'Desconhecido';
+      default:
+        return gender;
+    }
+  }
+
+  String get translatedOrigin {
+    String translated = origin;
+
+    if (translated.toLowerCase().contains('earth')) {
+      translated = translated.replaceAll(
+        RegExp('earth', caseSensitive: false),
+        'Terra',
+      );
+    }
+    if (translated.toLowerCase().contains('unknown')) {
+      translated = translated.replaceAll(
+        RegExp('unknown', caseSensitive: false),
+        'Desconhecido',
+      );
+    }
+    if (translated.toLowerCase().contains('Dimension')) {
+      translated = translated.replaceAll(
+        RegExp('Dimension', caseSensitive: false),
+        'Dimensão',
+      );
+    }
+    if (translated.toLowerCase().contains('citadel')) {
+      translated = translated.replaceAll(
+        RegExp('Citadel', caseSensitive: false),
+        'Cidadela',
+      );
+    }
+
+    return translated;
+  }
 }
